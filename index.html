@@ -2165,9 +2165,21 @@
             document.getElementById('kills').textContent = kills;
         }
 
+        // Fun encouraging messages - never a real "lose" screen!
+        const endMessages = [
+            { title: '✨ Amazing Run! ✨', text: 'You absolutely CRUSHED ${kills} Austins!\n\nWave ${wave} is pretty far!\n\nSavvy is SO proud of you! 💕' },
+            { title: '💪 UNSTOPPABLE! 💪', text: '${kills} Austins defeated?!\n\nThat\'s INCREDIBLE!\n\nReady to beat your record? 🏆' },
+            { title: '🌟 You\'re Amazing! 🌟', text: 'Wave ${wave} reached!\n${kills} bad decisions stopped!\n\nSavvy believes in you! 💖' },
+            { title: '💖 Great Job! 💖', text: 'The Austins got lucky this time!\n\nBut you still took out ${kills} of them!\n\nLet\'s show them who\'s boss! 👸' },
+            { title: '🎉 What a Run! 🎉', text: '${kills} Austins couldn\'t handle you!\n\nWave ${wave} is amazing!\n\nOne more round? 💕' },
+            { title: '👑 Queen Energy! 👑', text: 'You made it to wave ${wave}!\n\n${kills} Austins eliminated!\n\nSlay again? 💅' }
+        ];
+        
         function gameOver() {
             gameRunning = false;
-            showMessage('💔 Game Over! 💔', `The Austins broke through!\n\nYou survived ${wave} waves\nand defeated ${kills} enemies!\n\nSavvy will be back stronger! 💪`, 'Try Again');
+            const msg = endMessages[Math.floor(Math.random() * endMessages.length)];
+            const finalText = msg.text.replace(/\${kills}/g, kills).replace(/\${wave}/g, wave);
+            showMessage(msg.title, finalText, 'Go Again! 💘');
         }
 
         function showMessage(title, text, buttonText) {
