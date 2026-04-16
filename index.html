@@ -502,30 +502,30 @@
             savvy: {
                 name: 'Savvy',
                 cost: 50,
-                range: 200,      // Huge range!
+                range: 280,      // HUGE range!
                 damage: 35,      // High damage!
-                fireRate: 25,    // Super fast fire rate!
+                fireRate: 20,    // Super fast fire rate!
                 color: '#ff69b4',
-                projectiles: 2,  // Shoots 2 arrows!
+                projectiles: 3,  // Shoots 3 arrows!
                 special: true    // She's special!
             },
             tower: {
                 name: 'Love Tower',
                 cost: 100,
-                range: 160,
+                range: 220,
                 damage: 12,
-                fireRate: 45,
+                fireRate: 35,
                 color: '#ff1493',
-                projectiles: 3
+                projectiles: 4
             },
             fighter: {
                 name: 'Fighter',
                 cost: 75,
-                range: 90,
+                range: 140,
                 damage: 20,
-                fireRate: 70,
+                fireRate: 50,
                 color: '#8b4513',
-                projectiles: 1
+                projectiles: 2
             }
         };
 
@@ -1386,16 +1386,36 @@
             ctx.fillText('✨', 770, 560);
         }
 
-        // Projectiles
+        // Projectiles - with aim assist!
         function updateProjectiles() {
             for (let i = projectiles.length - 1; i >= 0; i--) {
                 const p = projectiles[i];
+                
+                // Light homing - projectiles curve toward nearest enemy
+                let nearestEnemy = null;
+                let nearestDist = 150;
+                for (let enemy of enemies) {
+                    const dist = Math.hypot(enemy.x - p.x, enemy.y - p.y);
+                    if (dist < nearestDist) {
+                        nearestDist = dist;
+                        nearestEnemy = enemy;
+                    }
+                }
+                if (nearestEnemy) {
+                    const targetAngle = Math.atan2(nearestEnemy.y - p.y, nearestEnemy.x - p.x);
+                    const currentAngle = Math.atan2(p.vy, p.vx);
+                    const speed = Math.hypot(p.vx, p.vy);
+                    const newAngle = currentAngle + (targetAngle - currentAngle) * 0.15; // 15% homing
+                    p.vx = Math.cos(newAngle) * speed;
+                    p.vy = Math.sin(newAngle) * speed;
+                }
+                
                 p.x += p.vx;
                 p.y += p.vy;
 
                 for (let enemy of enemies) {
                     const dist = Math.hypot(enemy.x - p.x, enemy.y - p.y);
-                    if (dist < enemy.type.size + 10) {
+                    if (dist < enemy.type.size + 30) {  // BIGGER hitbox for easier hits!
                         enemy.takeDamage(p.damage, p.owner);
                         projectiles.splice(i, 1);
                         break;
