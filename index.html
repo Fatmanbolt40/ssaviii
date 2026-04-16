@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>💘 Savi Defense 💘</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        body {
+            background: linear-gradient(135deg, #1a0a2e 0%, #3d1a5c 50%, #1a0a2e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        #gameTitle {
+            color: #ff69b4;
+            text-shadow: 0 0 20px #ff69b4, 0 0 40px #ff1493;
+            font-size: clamp(24px, 6vw, 48px);
+            margin: 10px 0;
+            text-align: center;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 4/3;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            border: 3px solid #ff69b4;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255,105,180,0.5);
+        }
+        #ui {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+        .stat {
+            background: rgba(255,105,180,0.2);
+            border: 2px solid #ff69b4;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: white;
+            font-size: clamp(12px, 3vw, 16px);
+        }
+        #shopContainer {
+            width: 100%;
+            max-width: 600px;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .shopBtn {
+            background: linear-gradient(145deg, #ff69b4, #ff1493);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: white;
+            font-size: clamp(11px, 2.8vw, 14px);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(255,20,147,0.4);
+            min-width: 90px;
+        }
+        .shopBtn:hover, .shopBtn:active {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255,20,147,0.6);
+        }
+        .shopBtn.selected {
+            background: linear-gradient(145deg, #00ff88, #00cc66);
+            box-shadow: 0 0 20px rgba(0,255,136,0.6);
+        }
+        .shopBtn.sell {
+            background: linear-gradient(145deg, #ff4444, #cc0000);
+        }
+        .shopBtn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #dialogBox {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.98), rgba(0,0,0,0.9));
+            border-top: 3px solid #ff69b4;
+            padding: 20px;
+            display: none;
+            z-index: 100;
+        }
+        #dialogContent {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        #dialogPortrait {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #ff69b4;
+            background: #2d1b4e;
+            flex-shrink: 0;
+        }
+        #dialogText {
+            flex: 1;
+        }
+        #dialogName {
+            color: #ff69b4;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        #dialogMessage {
+            color: white;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        #dialogContinue {
+            background: linear-gradient(145deg, #ff69b4, #ff1493);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #messageBox {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            border: 3px solid #ff69b4;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            display: none;
+            z-index: 100;
+            max-width: 90%;
+        }
+        #messageBox h2 {
+            color: #ff69b4;
+            font-size: clamp(24px, 6vw, 36px);
+            margin-bottom: 15px;
+        }
+        #messageBox p {
+            color: white;
+            font-size: clamp(14px, 4vw, 18px);
+            margin-bottom: 20px;
+            white-space: pre-line;
+        }
+        #messageBox button {
+            background: linear-gradient(145deg, #ff69b4, #ff1493);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            color: white;
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #instructions {
+            color: rgba(255,255,255,0.7);
+            font-size: clamp(10px, 2.5vw, 12px);
+            text-align: center;
+            padding: 5px;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="gameTitle">💘 Savi Defense 💘</h1>
+    
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    
+    <div id="ui">
+        <div class="stat">💰 <span id="gold">150</span></div>
+        <div class="stat">❤️ <span id="lives">20</span></div>
+        <div class="stat">🌊 Wave: <span id="wave">1</span></div>
+        <div class="stat">💀 Kills: <span id="kills">0</span></div>
+    </div>
+    
+    <div id="shopContainer">
+        <button class="shopBtn" onclick="selectTower('savvy')" id="btn_savvy">👸 Savvy<br>50💰</button>
+        <button class="shopBtn" onclick="selectTower('tower')" id="btn_tower">🏰 Love Tower<br>100💰</button>
+        <button class="shopBtn" onclick="selectTower('fighter')" id="btn_fighter">💪 Fighter<br>75💰</button>
+        <button class="shopBtn sell" onclick="sellSelected()" id="sellBtn" style="display:none;">🗑️ Sell<br><span id="sellPrice">0</span>💰</button>
+        <button class="shopBtn" onclick="cancelSelection()" id="cancelBtn" style="display:none;">❌ Cancel</button>
+        <button class="shopBtn" onclick="startWave()" id="startBtn">▶️ Start Wave</button>
+    </div>
+    
+    <p id="instructions">Tap to place defenders! Tap a defender to select & sell it! 💕</p>
+    
+    <div id="dialogBox">
+        <div id="dialogContent">
+            <canvas id="dialogPortrait" width="80" height="80"></canvas>
+            <div id="dialogText">
+                <div id="dialogName">Savvy</div>
+                <div id="dialogMessage">Hello!</div>
+                <button id="dialogContinue" onclick="continueDialog()">Continue ▶</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="messageBox">
+        <h2 id="msgTitle">Welcome!</h2>
+        <p id="msgText">Defend against the Austins with love!</p>
+        <button onclick="closeMessage()">Play!</button>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const portraitCanvas = document.getElementById('dialogPortrait');
+        const portraitCtx = portraitCanvas.getContext('2d');
+        
+        canvas.width = 800;
+        canvas.height = 600;
+
+        // Game state
+        let gold = 150;
+        let lives = 20;
+        let wave = 0;
+        let kills = 0;
+        let selectedTower = null;
+        let selectedDefender = null;
+        let gameRunning = false;
+        let waveActive = false;
+
+        // Game objects
+        let defenders = [];
+        let enemies = [];
+        let projectiles = [];
+        let particles = [];
+
+        // Dialog system
+        let dialogQueue = [];
+        let dialogActive = false;
+
+        // Cutscene effects system
+        let cutsceneExplosions = [];
+        let screenShake = { intensity: 0, duration: 0 };
+        let cutsceneFlash = { alpha: 0 };
+
+        // Trigger dramatic explosion effect
+        function triggerExplosion(count = 5, intensity = 'medium') {
+            const sizes = { small: 30, medium: 50, large: 80 };
+            const size = sizes[intensity] || 50;
+            
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const x = 100 + Math.random() * 600;
+                    const y = 100 + Math.random() * 400;
+                    createExplosion(x, y, size);
+                }, i * 150);
+            }
+        }
+
+        function createExplosion(x, y, size) {
+            // Main explosion particles
+            for (let i = 0; i < 30; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 8;
+                cutsceneExplosions.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: size * (0.3 + Math.random() * 0.7),
+                    life: 60 + Math.random() * 30,
+                    maxLife: 90,
+                    color: ['#ff4400', '#ff8800', '#ffcc00', '#ff0000', '#ffffff'][Math.floor(Math.random() * 5)],
+                    type: 'fire'
+                });
+            }
+            // Smoke particles
+            for (let i = 0; i < 15; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 1 + Math.random() * 3;
+                cutsceneExplosions.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed - 2,
+                    size: size * (0.5 + Math.random()),
+                    life: 80 + Math.random() * 40,
+                    maxLife: 120,
+                    color: '#333',
+                    type: 'smoke'
+                });
+            }
+            // Screen shake
+            screenShake.intensity = Math.min(screenShake.intensity + size / 5, 20);
+            screenShake.duration = 20;
+            // Flash
+            cutsceneFlash.alpha = 0.5;
+        }
+
+        function triggerScreenShake(intensity = 10, duration = 15) {
+            screenShake.intensity = intensity;
+            screenShake.duration = duration;
+        }
+
+        function triggerFlash() {
+            cutsceneFlash.alpha = 0.8;
+        }
+
+        function updateCutsceneEffects() {
+            // Update explosions
+            for (let i = cutsceneExplosions.length - 1; i >= 0; i--) {
+                const p = cutsceneExplosions[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1; // gravity
+                p.vx *= 0.98; // friction
+                p.life--;
+                if (p.life <= 0) cutsceneExplosions.splice(i, 1);
+            }
+            // Update shake
+            if (screenShake.duration > 0) {
+                screenShake.duration--;
+                screenShake.intensity *= 0.9;
+            }
+            // Update flash
+            if (cutsceneFlash.alpha > 0) {
+                cutsceneFlash.alpha -= 0.05;
+            }
+        }
+
+        function drawCutsceneEffects() {
+            // Draw explosions
+            for (const p of cutsceneExplosions) {
+                const alpha = p.life / p.maxLife;
+                ctx.globalAlpha = alpha;
+                
+                if (p.type === 'fire') {
+                    // Fire glow
+                    const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                    gradient.addColorStop(0, p.color);
+                    gradient.addColorStop(0.5, p.color + '88');
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (p.type === 'sparkle') {
+                    // Sparkle star effect
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.life * 0.1);
+                    ctx.fillStyle = p.color;
+                    // Draw 4-point star
+                    ctx.beginPath();
+                    for (let i = 0; i < 8; i++) {
+                        const angle = (i / 8) * Math.PI * 2;
+                        const radius = i % 2 === 0 ? p.size : p.size * 0.4;
+                        const x = Math.cos(angle) * radius;
+                        const y = Math.sin(angle) * radius;
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.closePath();
+                    ctx.fill();
+                    // Glow
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 15;
+                    ctx.fill();
+                    ctx.restore();
+                } else {
+                    // Smoke
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * alpha, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            
+            // Draw flash
+            if (cutsceneFlash.alpha > 0) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${cutsceneFlash.alpha})`;
+                ctx.fillRect(-20, -20, canvas.width + 40, canvas.height + 40);
+            }
+        }
+
+        // STORYLINE DIALOGS - Creative and empowering for Savannah! With effects!
+        const waveDialogs = {
+            0: [ // Intro
+                { speaker: 'savvy', text: "Hey there! I'm Savvy, but my real name is Savannah. 💕" },
+                { speaker: 'savvy', text: "I've trained for YEARS to master the art of love arrows. No one can match my skills!", effect: 'sparkle' },
+                { speaker: 'savvy', text: "These annoying Austins keep trying to crash my kingdom. Not happening! 😤", effect: 'shake' },
+                { speaker: 'savvy', text: "Time to show them what happens when they mess with THE Savvy!", effect: 'explosion_small' }
+            ],
+            1: [
+                { speaker: 'savvy', text: "Wave 1? Please. I could do this in my sleep! 💅" },
+                { speaker: 'savvy', text: "Watch and learn how a real archer handles business!", effect: 'flash' }
+            ],
+            2: [
+                { speaker: 'savvy', text: "More Austins? They really don't learn, do they?" },
+                { speaker: 'austin', text: "We will overwhelm you with our numbers!", effect: 'shake' },
+                { speaker: 'savvy', text: "LOL cute. My arrows never miss. EVER. 🎯", effect: 'explosion_small' }
+            ],
+            3: [
+                { speaker: 'savvy', text: "I heard there's some 'Big Austins' coming. Ooh scary! 😂" },
+                { speaker: 'savvy', text: "Bigger target = easier to hit. Thanks for making my job simpler!", effect: 'explosion_medium' }
+            ],
+            4: [
+                { speaker: 'austin', text: "You cannot stop us forever, Savvy!", effect: 'shake' },
+                { speaker: 'savvy', text: "Forever? I just need like 5 minutes. Get in line to get destroyed! 💘", effect: 'explosion_small' }
+            ],
+            5: [
+                { speaker: 'savvy', text: "Wait... do I smell... COCAINE AUSTIN?! 👀", effect: 'shake' },
+                { speaker: 'cocaine', text: "*SNIFF* I'M UNSTOPPABLE! MAXIMUM OVERDRIVE!", effect: 'explosion_boss' },
+                { speaker: 'savvy', text: "Oh you're fast alright... Fast at getting HIT BY MY ARROWS! Let's GO! 🔥", effect: 'explosion_large' }
+            ],
+            6: [
+                { speaker: 'savvy', text: "That Cocaine Austin thought he was special. He was special... SPECIAL DELIVERY to defeat! 📦", effect: 'explosion_medium' },
+                { speaker: 'savvy', text: "I'm literally built different. My power level? Over 9000. 💪", effect: 'flash' }
+            ],
+            7: [
+                { speaker: 'austin', text: "We've brought reinforcements!", effect: 'shake' },
+                { speaker: 'savvy', text: "Aww you brought friends! More targets for my collection! 🎯💕", effect: 'explosion_small' }
+            ],
+            8: [
+                { speaker: 'savvy', text: "You know what I love about being me?" },
+                { speaker: 'savvy', text: "Everything. I'm literally perfect at this. 👑", effect: 'sparkle' }
+            ],
+            9: [
+                { speaker: 'savvy', text: "Wave 9? We're really doing this? Fine.", effect: 'shake' },
+                { speaker: 'savvy', text: "I haven't even broken a sweat yet! Who's next?! 💅", effect: 'explosion_medium' }
+            ],
+            10: [
+                { speaker: 'cocaine', text: "*AGGRESSIVE SNIFFING* ROUND 2 BABY! I'M BACK!", effect: 'explosion_boss' },
+                { speaker: 'savvy', text: "Oh no... anyway. 😎" },
+                { speaker: 'savvy', text: "You know the drill everyone! Savvy's about to pop OFF!", effect: 'explosion_large' }
+            ]
+        };
+
+        // Random dialogs for waves without specific content
+        const randomVictoryLines = [
+            "Another wave crushed! I make this look EASY! 💅",
+            "Was that supposed to be hard? Because... it wasn't. 😎",
+            "Savvy: 1, Austins: 0. As always! 👑",
+            "My accuracy is literally 100%. Facts only! 🎯",
+            "They keep coming, I keep WINNING! 💪",
+            "I'm not just good, I'm LEGENDARY! ✨",
+            "Someone tell the Austins this is embarrassing for them! 😂",
+            "Another flawless victory by yours truly! 💕"
+        ];
+
+        const randomWaveStartLines = [
+            "Alright, more practice targets incoming! Let's go! 🎯",
+            "Oh look, more Austins to humble. My favorite! 💕",
+            "They really thought THIS wave would stop me? Please! 😤",
+            "Lock and load, babies! Savvy's ready to DOMINATE! 💪",
+            "Let me guess... you want to lose again? Say less! 👑"
+        ];
+
+        // Path for enemies
+        const path = [
+            {x: -50, y: 300},
+            {x: 100, y: 300},
+            {x: 150, y: 200},
+            {x: 250, y: 150},
+            {x: 400, y: 180},
+            {x: 500, y: 300},
+            {x: 550, y: 400},
+            {x: 650, y: 450},
+            {x: 750, y: 400},
+            {x: 850, y: 350}
+        ];
+
+        // Tower types - SAVVY IS OVERPOWERED!
+        const towerTypes = {
+            savvy: {
+                name: 'Savvy',
+                cost: 50,
+                range: 200,      // Huge range!
+                damage: 35,      // High damage!
+                fireRate: 25,    // Super fast fire rate!
+                color: '#ff69b4',
+                projectiles: 2,  // Shoots 2 arrows!
+                special: true    // She's special!
+            },
+            tower: {
+                name: 'Love Tower',
+                cost: 100,
+                range: 160,
+                damage: 12,
+                fireRate: 45,
+                color: '#ff1493',
+                projectiles: 3
+            },
+            fighter: {
+                name: 'Fighter',
+                cost: 75,
+                range: 90,
+                damage: 20,
+                fireRate: 70,
+                color: '#8b4513',
+                projectiles: 1
+            }
+        };
+
+        // Enemy types - SLOWED DOWN significantly!
+        const enemyTypes = {
+            austin: {
+                name: 'Austin',
+                health: 50,
+                speed: 0.6,      // Slowed from 1.5 to 0.6
+                reward: 15,
+                color: '#4169e1',
+                size: 20
+            },
+            fastAustin: {
+                name: 'Fast Austin',
+                health: 30,
+                speed: 1.2,      // Slowed from 3 to 1.2
+                reward: 20,
+                color: '#00bfff',
+                size: 18
+            },
+            bigAustin: {
+                name: 'Big Austin',
+                health: 150,
+                speed: 0.3,      // Slowed from 0.8 to 0.3
+                reward: 40,
+                color: '#191970',
+                size: 30
+            },
+            cocaineAustin: {
+                name: 'COCAINE AUSTIN',
+                health: 400,
+                speed: 1.0,      // Slowed from 2.5 to 1.0
+                reward: 150,
+                color: '#ffffff',
+                size: 38,
+                boss: true
+            }
+        };
+
+        // ============== DRAWING FUNCTIONS FOR 2D CHARACTERS ==============
+
+        // Draw Savvy (cute anime-style archer girl)
+        function drawSavvy(x, y, angle, scale = 1, selected = false) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            // Selection glow
+            if (selected) {
+                ctx.shadowColor = '#00ff00';
+                ctx.shadowBlur = 20;
+            }
+            
+            const s = 25 * scale;
+            
+            // Hair (long pink/blonde)
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.ellipse(0, -s*0.2, s*0.9, s*1.1, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Hair strands flowing down
+            ctx.fillStyle = '#ff1493';
+            ctx.beginPath();
+            ctx.ellipse(-s*0.5, s*0.3, s*0.15, s*0.5, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(s*0.5, s*0.3, s*0.15, s*0.5, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Face
+            ctx.fillStyle = '#ffe4c4';
+            ctx.beginPath();
+            ctx.arc(0, -s*0.1, s*0.55, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes (big cute anime eyes)
+            ctx.fillStyle = '#4169e1';
+            ctx.beginPath();
+            ctx.ellipse(-s*0.2, -s*0.15, s*0.15, s*0.2, 0, 0, Math.PI * 2);
+            ctx.ellipse(s*0.2, -s*0.15, s*0.15, s*0.2, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eye sparkles
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(-s*0.25, -s*0.2, s*0.06, 0, Math.PI * 2);
+            ctx.arc(s*0.15, -s*0.2, s*0.06, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Cute blush
+            ctx.fillStyle = 'rgba(255,150,150,0.5)';
+            ctx.beginPath();
+            ctx.ellipse(-s*0.35, s*0.05, s*0.12, s*0.08, 0, 0, Math.PI * 2);
+            ctx.ellipse(s*0.35, s*0.05, s*0.12, s*0.08, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Confident smile
+            ctx.strokeStyle = '#d4a574';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, s*0.05, s*0.18, 0.15, Math.PI - 0.15);
+            ctx.stroke();
+            
+            // Crown/tiara - she's royalty!
+            ctx.fillStyle = '#ffd700';
+            ctx.beginPath();
+            ctx.moveTo(-s*0.35, -s*0.6);
+            ctx.lineTo(-s*0.25, -s*0.85);
+            ctx.lineTo(-s*0.1, -s*0.7);
+            ctx.lineTo(0, -s*0.9);
+            ctx.lineTo(s*0.1, -s*0.7);
+            ctx.lineTo(s*0.25, -s*0.85);
+            ctx.lineTo(s*0.35, -s*0.6);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Gem on crown
+            ctx.fillStyle = '#ff1493';
+            ctx.beginPath();
+            ctx.arc(0, -s*0.72, s*0.08, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Body/dress (cute pink dress)
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.moveTo(-s*0.4, s*0.4);
+            ctx.lineTo(-s*0.55, s*1.1);
+            ctx.lineTo(s*0.55, s*1.1);
+            ctx.lineTo(s*0.4, s*0.4);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Dress details
+            ctx.fillStyle = '#ff1493';
+            ctx.fillRect(-s*0.3, s*0.5, s*0.6, s*0.08);
+            
+            // Arms
+            ctx.fillStyle = '#ffe4c4';
+            ctx.beginPath();
+            ctx.ellipse(-s*0.45, s*0.5, s*0.1, s*0.2, 0.3, 0, Math.PI * 2);
+            ctx.ellipse(s*0.45, s*0.5, s*0.1, s*0.2, -0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Bow (weapon) - pointing toward angle
+            ctx.save();
+            ctx.rotate(angle);
+            // Bow wood
+            ctx.strokeStyle = '#8b4513';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(s*0.65, 0, s*0.45, -0.9, 0.9);
+            ctx.stroke();
+            // Bow decorations
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.arc(s*0.38, -s*0.38, s*0.08, 0, Math.PI * 2);
+            ctx.arc(s*0.38, s*0.38, s*0.08, 0, Math.PI * 2);
+            ctx.fill();
+            // Bowstring
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(s*0.38, -s*0.42);
+            ctx.lineTo(s*0.38, s*0.42);
+            ctx.stroke();
+            ctx.restore();
+            
+            ctx.restore();
+        }
+
+        // Draw Love Tower (heart castle)
+        function drawLoveTower(x, y, angle, scale = 1, selected = false) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            if (selected) {
+                ctx.shadowColor = '#00ff00';
+                ctx.shadowBlur = 20;
+            }
+            
+            const s = 25 * scale;
+            
+            // Tower base
+            ctx.fillStyle = '#ff1493';
+            ctx.fillRect(-s*0.5, -s*0.3, s, s*1.3);
+            
+            // Stone texture lines
+            ctx.strokeStyle = '#cc1177';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.moveTo(-s*0.5, -s*0.1 + i*s*0.35);
+                ctx.lineTo(s*0.5, -s*0.1 + i*s*0.35);
+                ctx.stroke();
+            }
+            
+            // Tower top (pointed roof)
+            ctx.fillStyle = '#ff69b4';
+            ctx.beginPath();
+            ctx.moveTo(-s*0.7, -s*0.3);
+            ctx.lineTo(0, -s*1);
+            ctx.lineTo(s*0.7, -s*0.3);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Heart emblem on tower
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.moveTo(0, s*0.15);
+            ctx.bezierCurveTo(-s*0.35, -s*0.2, -s*0.5, s*0.1, 0, s*0.4);
+            ctx.bezierCurveTo(s*0.5, s*0.1, s*0.35, -s*0.2, 0, s*0.15);
+            ctx.fill();
+            
+            // Windows
+            ctx.fillStyle = '#ffff99';
+            ctx.fillRect(-s*0.22, s*0.55, s*0.18, s*0.25);
+            ctx.fillRect(s*0.04, s*0.55, s*0.18, s*0.25);
+            
+            // Window cross
+            ctx.fillStyle = '#cc1177';
+            ctx.fillRect(-s*0.14, s*0.55, s*0.02, s*0.25);
+            ctx.fillRect(s*0.12, s*0.55, s*0.02, s*0.25);
+            
+            // Flag on top
+            ctx.fillStyle = '#ff69b4';
+            ctx.fillRect(-s*0.02, -s*1, s*0.04, s*0.3);
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.moveTo(s*0.02, -s*1);
+            ctx.lineTo(s*0.25, -s*0.85);
+            ctx.lineTo(s*0.02, -s*0.7);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Direction indicator (arrow)
+            ctx.save();
+            ctx.rotate(angle);
+            ctx.fillStyle = '#ffcc00';
+            ctx.beginPath();
+            ctx.moveTo(s*0.6, 0);
+            ctx.lineTo(s*0.35, -s*0.15);
+            ctx.lineTo(s*0.35, s*0.15);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+            
+            ctx.restore();
+        }
+
+        // Draw Fighter (strong warrior)
+        function drawFighter(x, y, angle, scale = 1, selected = false) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            if (selected) {
+                ctx.shadowColor = '#00ff00';
+                ctx.shadowBlur = 20;
+            }
+            
+            const s = 25 * scale;
+            
+            // Body (muscular torso)
+            ctx.fillStyle = '#2e1a0e';
+            ctx.beginPath();
+            ctx.ellipse(0, s*0.3, s*0.55, s*0.6, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Tank top / armor
+            ctx.fillStyle = '#8b4513';
+            ctx.beginPath();
+            ctx.ellipse(0, s*0.25, s*0.5, s*0.55, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Head
+            ctx.fillStyle = '#3d2410';
+            ctx.beginPath();
+            ctx.arc(0, -s*0.4, s*0.42, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Face
+            ctx.fillStyle = '#8b6914';
+            ctx.beginPath();
+            ctx.arc(0, -s*0.35, s*0.32, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes (determined look)
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.ellipse(-s*0.12, -s*0.4, s*0.09, s*0.07, 0, 0, Math.PI * 2);
+            ctx.ellipse(s*0.12, -s*0.4, s*0.09, s*0.07, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(-s*0.1, -s*0.4, s*0.04, 0, Math.PI * 2);
+            ctx.arc(s*0.1, -s*0.4, s*0.04, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Determined eyebrows
+            ctx.strokeStyle = '#1a0a00';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(-s*0.22, -s*0.52);
+            ctx.lineTo(-s*0.05, -s*0.48);
+            ctx.moveTo(s*0.22, -s*0.52);
+            ctx.lineTo(s*0.05, -s*0.48);
+            ctx.stroke();
+            
+            // Serious mouth
+            ctx.strokeStyle = '#4a2810';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-s*0.1, -s*0.2);
+            ctx.lineTo(s*0.1, -s*0.2);
+            ctx.stroke();
+            
+            // Afro / hair
+            ctx.fillStyle = '#1a0a00';
+            ctx.beginPath();
+            ctx.arc(0, -s*0.55, s*0.38, Math.PI, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(-s*0.25, -s*0.5, s*0.18, s*0.25, -0.3, 0, Math.PI * 2);
+            ctx.ellipse(s*0.25, -s*0.5, s*0.18, s*0.25, 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Muscular arms
+            ctx.fillStyle = '#8b6914';
+            ctx.beginPath();
+            ctx.ellipse(-s*0.55, s*0.15, s*0.18, s*0.3, 0.2, 0, Math.PI * 2);
+            ctx.ellipse(s*0.55, s*0.15, s*0.18, s*0.3, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Fists
+            ctx.fillStyle = '#8b6914';
+            ctx.beginPath();
+            ctx.arc(-s*0.6, s*0.4, s*0.15, 0, Math.PI * 2);
+            ctx.arc(s*0.6, s*0.4, s*0.15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Sword - pointing toward angle
+            ctx.save();
+            ctx.rotate(angle);
+            // Blade
+            ctx.fillStyle = '#c0c0c0';
+            ctx.beginPath();
+            ctx.moveTo(s*0.3, -s*0.08);
+            ctx.lineTo(s*1.0, 0);
+            ctx.lineTo(s*0.3, s*0.08);
+            ctx.closePath();
+            ctx.fill();
+            // Blade shine
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(s*0.4, -s*0.02);
+            ctx.lineTo(s*0.85, 0);
+            ctx.stroke();
+            // Handle
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(s*0.15, -s*0.12, s*0.18, s*0.24);
+            // Guard
+            ctx.fillStyle = '#ffd700';
+            ctx.fillRect(s*0.28, -s*0.15, s*0.04, s*0.3);
+            ctx.restore();
+            
+            ctx.restore();
+        }
+
+        // Draw Austin (enemy blob dude)
+        function drawAustin(x, y, type, health, maxHealth) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            const enemyType = enemyTypes[type];
+            const s = enemyType.size;
+            
+            if (enemyType.boss) {
+                ctx.shadowColor = '#fff';
+                ctx.shadowBlur = 25;
+            }
+            
+            // Body
+            ctx.fillStyle = enemyType.color;
+            ctx.beginPath();
+            ctx.arc(0, 0, s, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = enemyType.boss ? '#ff0000' : '#000';
+            ctx.lineWidth = enemyType.boss ? 4 : 2;
+            ctx.stroke();
+            
+            // Inner circle for depth
+            ctx.fillStyle = type === 'cocaineAustin' ? '#f0f0f0' : 
+                           type === 'bigAustin' ? '#2a2a6a' :
+                           type === 'fastAustin' ? '#40c0ff' : '#5179f1';
+            ctx.beginPath();
+            ctx.arc(0, s*0.05, s*0.7, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Face based on type
+            if (type === 'cocaineAustin') {
+                // CRAZY eyes (spinning/wide)
+                ctx.fillStyle = '#ff0000';
+                ctx.beginPath();
+                ctx.arc(-s*0.35, -s*0.15, s*0.28, 0, Math.PI * 2);
+                ctx.arc(s*0.35, -s*0.15, s*0.28, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-s*0.35, -s*0.15, s*0.12, 0, Math.PI * 2);
+                ctx.arc(s*0.35, -s*0.15, s*0.12, 0, Math.PI * 2);
+                ctx.fill();
+                // Tiny crazy pupils
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(-s*0.32, -s*0.18, s*0.04, 0, Math.PI * 2);
+                ctx.arc(s*0.32, -s*0.18, s*0.04, 0, Math.PI * 2);
+                ctx.fill();
+                // HUGE crazy grin
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(0, s*0.15, s*0.45, 0.2, Math.PI - 0.2);
+                ctx.stroke();
+                // Teeth showing
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(-s*0.3, s*0.12, s*0.6, s*0.12);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                for (let i = -2; i <= 2; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(i*s*0.12, s*0.12);
+                    ctx.lineTo(i*s*0.12, s*0.24);
+                    ctx.stroke();
+                }
+                // White powder on nose
+                ctx.fillStyle = 'rgba(255,255,255,0.9)';
+                ctx.beginPath();
+                ctx.ellipse(0, s*0.05, s*0.15, s*0.1, 0, 0, Math.PI * 2);
+                ctx.fill();
+                // Sweat drops (he's zooming)
+                ctx.fillStyle = '#88ccff';
+                ctx.beginPath();
+                ctx.ellipse(-s*0.6, -s*0.3, s*0.08, s*0.12, 0.3, 0, Math.PI * 2);
+                ctx.ellipse(s*0.6, -s*0.3, s*0.08, s*0.12, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Regular angry face
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.ellipse(-s*0.3, -s*0.12, s*0.18, s*0.15, 0, 0, Math.PI * 2);
+                ctx.ellipse(s*0.3, -s*0.12, s*0.18, s*0.15, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-s*0.25, -s*0.1, s*0.08, 0, Math.PI * 2);
+                ctx.arc(s*0.25, -s*0.1, s*0.08, 0, Math.PI * 2);
+                ctx.fill();
+                // Angry eyebrows
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(-s*0.5, -s*0.32);
+                ctx.lineTo(-s*0.15, -s*0.22);
+                ctx.moveTo(s*0.5, -s*0.32);
+                ctx.lineTo(s*0.15, -s*0.22);
+                ctx.stroke();
+                // Frown
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.arc(0, s*0.45, s*0.25, Math.PI + 0.6, -0.6);
+                ctx.stroke();
+            }
+            
+            ctx.shadowBlur = 0;
+            
+            // Health bar
+            const barWidth = s * 2.2;
+            const barHeight = 7;
+            const healthPercent = health / maxHealth;
+            
+            // Bar background
+            ctx.fillStyle = '#333';
+            ctx.fillRect(-barWidth/2, -s - 22, barWidth, barHeight);
+            // Health fill
+            ctx.fillStyle = healthPercent > 0.5 ? '#00ff00' : healthPercent > 0.25 ? '#ffff00' : '#ff0000';
+            ctx.fillRect(-barWidth/2, -s - 22, barWidth * healthPercent, barHeight);
+            // Border
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(-barWidth/2, -s - 22, barWidth, barHeight);
+            
+            // Name above health bar
+            ctx.font = enemyType.boss ? 'bold 14px Arial' : 'bold 11px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = enemyType.boss ? '#ff4444' : '#fff';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            const name = enemyType.boss ? '⚡ ' + enemyType.name + ' ⚡' : enemyType.name;
+            ctx.strokeText(name, 0, -s - 28);
+            ctx.fillText(name, 0, -s - 28);
+            
+            ctx.restore();
+        }
+
+        // Draw portrait for dialog box
+        function drawPortrait(speaker) {
+            portraitCtx.clearRect(0, 0, 80, 80);
+            portraitCtx.save();
+            portraitCtx.translate(40, 45);
+            
+            if (speaker === 'savvy') {
+                // Savvy portrait
+                // Hair
+                portraitCtx.fillStyle = '#ff69b4';
+                portraitCtx.beginPath();
+                portraitCtx.ellipse(0, -8, 28, 32, 0, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                // Face
+                portraitCtx.fillStyle = '#ffe4c4';
+                portraitCtx.beginPath();
+                portraitCtx.arc(0, -2, 22, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                // Eyes
+                portraitCtx.fillStyle = '#4169e1';
+                portraitCtx.beginPath();
+                portraitCtx.ellipse(-8, -5, 6, 8, 0, 0, Math.PI * 2);
+                portraitCtx.ellipse(8, -5, 6, 8, 0, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                // Eye sparkles
+                portraitCtx.fillStyle = 'white';
+                portraitCtx.beginPath();
+                portraitCtx.arc(-10, -7, 2, 0, Math.PI * 2);
+                portraitCtx.arc(6, -7, 2, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                // Crown
+                portraitCtx.fillStyle = '#ffd700';
+                portraitCtx.beginPath();
+                portraitCtx.moveTo(-12, -25);
+                portraitCtx.lineTo(-7, -35);
+                portraitCtx.lineTo(0, -28);
+                portraitCtx.lineTo(7, -35);
+                portraitCtx.lineTo(12, -25);
+                portraitCtx.closePath();
+                portraitCtx.fill();
+                
+                // Smile
+                portraitCtx.strokeStyle = '#d4a574';
+                portraitCtx.lineWidth = 2;
+                portraitCtx.beginPath();
+                portraitCtx.arc(0, 5, 10, 0.2, Math.PI - 0.2);
+                portraitCtx.stroke();
+                
+                // Blush
+                portraitCtx.fillStyle = 'rgba(255,150,150,0.4)';
+                portraitCtx.beginPath();
+                portraitCtx.ellipse(-15, 3, 5, 3, 0, 0, Math.PI * 2);
+                portraitCtx.ellipse(15, 3, 5, 3, 0, 0, Math.PI * 2);
+                portraitCtx.fill();
+            } else if (speaker === 'austin') {
+                // Austin portrait
+                portraitCtx.fillStyle = '#4169e1';
+                portraitCtx.beginPath();
+                portraitCtx.arc(0, 0, 28, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                portraitCtx.fillStyle = '#5179f1';
+                portraitCtx.beginPath();
+                portraitCtx.arc(0, 2, 20, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                portraitCtx.fillStyle = 'white';
+                portraitCtx.beginPath();
+                portraitCtx.ellipse(-10, -5, 7, 6, 0, 0, Math.PI * 2);
+                portraitCtx.ellipse(10, -5, 7, 6, 0, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                portraitCtx.fillStyle = '#000';
+                portraitCtx.beginPath();
+                portraitCtx.arc(-8, -4, 3, 0, Math.PI * 2);
+                portraitCtx.arc(8, -4, 3, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                portraitCtx.strokeStyle = '#000';
+                portraitCtx.lineWidth = 2;
+                portraitCtx.beginPath();
+                portraitCtx.arc(0, 15, 10, Math.PI + 0.5, -0.5);
+                portraitCtx.stroke();
+            } else if (speaker === 'cocaine') {
+                // Cocaine Austin portrait
+                portraitCtx.fillStyle = '#ffffff';
+                portraitCtx.beginPath();
+                portraitCtx.arc(0, 0, 28, 0, Math.PI * 2);
+                portraitCtx.fill();
+                portraitCtx.strokeStyle = '#ff0000';
+                portraitCtx.lineWidth = 3;
+                portraitCtx.stroke();
+                
+                portraitCtx.fillStyle = '#ff0000';
+                portraitCtx.beginPath();
+                portraitCtx.arc(-10, -6, 10, 0, Math.PI * 2);
+                portraitCtx.arc(10, -6, 10, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                portraitCtx.fillStyle = '#000';
+                portraitCtx.beginPath();
+                portraitCtx.arc(-10, -6, 4, 0, Math.PI * 2);
+                portraitCtx.arc(10, -6, 4, 0, Math.PI * 2);
+                portraitCtx.fill();
+                
+                portraitCtx.strokeStyle = '#ff0000';
+                portraitCtx.lineWidth = 3;
+                portraitCtx.beginPath();
+                portraitCtx.arc(0, 10, 15, 0.3, Math.PI - 0.3);
+                portraitCtx.stroke();
+                
+                // Powder on nose
+                portraitCtx.fillStyle = 'rgba(255,255,255,0.8)';
+                portraitCtx.beginPath();
+                portraitCtx.ellipse(0, 2, 6, 4, 0, 0, Math.PI * 2);
+                portraitCtx.fill();
+            }
+            
+            portraitCtx.restore();
+        }
+
+        // Defender class
+        class Defender {
+            constructor(x, y, type) {
+                this.x = x;
+                this.y = y;
+                this.type = towerTypes[type];
+                this.typeName = type;
+                this.cooldown = 0;
+                this.angle = 0;
+                this.selected = false;
+                this.kills = 0;
+            }
+
+            getSellValue() {
+                return Math.floor(this.type.cost * 0.7);
+            }
+
+            update() {
+                if (this.cooldown > 0) this.cooldown--;
+                
+                let target = null;
+                let minDist = this.type.range;
+                
+                for (let enemy of enemies) {
+                    const dist = Math.hypot(enemy.x - this.x, enemy.y - this.y);
+                    if (dist < minDist) {
+                        minDist = dist;
+                        target = enemy;
+                    }
+                }
+
+                if (target) {
+                    this.angle = Math.atan2(target.y - this.y, target.x - this.x);
+                    
+                    if (this.cooldown <= 0) {
+                        this.fire(target);
+                        this.cooldown = this.type.fireRate;
+                    }
+                }
+            }
+
+            fire(target) {
+                const numProjectiles = this.type.projectiles;
+                const spreadAngle = numProjectiles > 1 ? 0.2 : 0;
+                
+                for (let i = 0; i < numProjectiles; i++) {
+                    let angle = this.angle;
+                    if (numProjectiles > 1) {
+                        angle += spreadAngle * (i - (numProjectiles - 1) / 2);
+                    }
+                    
+                    projectiles.push({
+                        x: this.x,
+                        y: this.y,
+                        vx: Math.cos(angle) * 12,
+                        vy: Math.sin(angle) * 12,
+                        damage: this.type.damage,
+                        color: this.type.color || '#ff69b4',
+                        owner: this,
+                        isSavvy: this.typeName === 'savvy'
+                    });
+                }
+            }
+
+            draw() {
+                // Draw range when selected
+                if (this.selected) {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.type.range, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,105,180,0.15)';
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(0,255,100,0.7)';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+
+                // Draw character based on type
+                if (this.typeName === 'savvy') {
+                    drawSavvy(this.x, this.y, this.angle, 1, this.selected);
+                } else if (this.typeName === 'tower') {
+                    drawLoveTower(this.x, this.y, this.angle, 1, this.selected);
+                } else if (this.typeName === 'fighter') {
+                    drawFighter(this.x, this.y, this.angle, 1, this.selected);
+                }
+
+                // Draw name above
+                ctx.font = 'bold 11px Arial';
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                ctx.textAlign = 'center';
+                ctx.strokeText(this.type.name, this.x, this.y - 45);
+                ctx.fillText(this.type.name, this.x, this.y - 45);
+            }
+        }
+
+        // Enemy class
+        class Enemy {
+            constructor(type) {
+                this.type = enemyTypes[type];
+                this.typeName = type;
+                this.health = this.type.health;
+                this.maxHealth = this.type.health;
+                this.speed = this.type.speed;
+                this.pathIndex = 0;
+                this.x = path[0].x;
+                this.y = path[0].y;
+                this.dead = false;
+            }
+
+            update() {
+                if (this.pathIndex >= path.length - 1) {
+                    lives--;
+                    updateUI();
+                    this.dead = true;
+                    if (lives <= 0) gameOver();
+                    return;
+                }
+
+                const target = path[this.pathIndex + 1];
+                const dx = target.x - this.x;
+                const dy = target.y - this.y;
+                const dist = Math.hypot(dx, dy);
+
+                if (dist < this.speed) {
+                    this.pathIndex++;
+                } else {
+                    this.x += (dx / dist) * this.speed;
+                    this.y += (dy / dist) * this.speed;
+                }
+            }
+
+            draw() {
+                drawAustin(this.x, this.y, this.typeName, this.health, this.maxHealth);
+            }
+
+            takeDamage(damage, owner) {
+                this.health -= damage;
+                
+                // Hit particles
+                for (let i = 0; i < 6; i++) {
+                    particles.push({
+                        x: this.x,
+                        y: this.y,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        life: 25,
+                        color: '#ff69b4',
+                        size: 4
+                    });
+                }
+
+                if (this.health <= 0) {
+                    this.dead = true;
+                    gold += this.type.reward;
+                    kills++;
+                    if (owner) owner.kills++;
+                    updateUI();
+                    
+                    // Death explosion particles
+                    for (let i = 0; i < 25; i++) {
+                        particles.push({
+                            x: this.x,
+                            y: this.y,
+                            vx: (Math.random() - 0.5) * 12,
+                            vy: (Math.random() - 0.5) * 12,
+                            life: 50,
+                            color: this.type.color,
+                            size: 6
+                        });
+                    }
+                    // Hearts flying out
+                    for (let i = 0; i < 5; i++) {
+                        particles.push({
+                            x: this.x,
+                            y: this.y,
+                            vx: (Math.random() - 0.5) * 4,
+                            vy: -Math.random() * 4 - 2,
+                            life: 60,
+                            color: '#ff69b4',
+                            size: 8,
+                            heart: true
+                        });
+                    }
+                }
+            }
+        }
+
+        // Draw path
+        function drawPath() {
+            ctx.beginPath();
+            ctx.moveTo(path[0].x, path[0].y);
+            for (let i = 1; i < path.length; i++) {
+                ctx.lineTo(path[i].x, path[i].y);
+            }
+            ctx.strokeStyle = '#6a4080';
+            ctx.lineWidth = 62;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+            ctx.strokeStyle = '#5a3070';
+            ctx.lineWidth = 54;
+            ctx.stroke();
+            ctx.strokeStyle = '#4a2560';
+            ctx.lineWidth = 46;
+            ctx.stroke();
+            
+            // Path edge details
+            ctx.strokeStyle = '#3a1a50';
+            ctx.lineWidth = 40;
+            ctx.stroke();
+        }
+
+        function drawDecorations() {
+            // Hearts at top and bottom
+            ctx.font = '28px Arial';
+            for (let i = 0; i < 10; i++) {
+                ctx.fillText('💕', 15 + i * 80, 28);
+                ctx.fillText('💕', 15 + i * 80, 582);
+            }
+            
+            // Sparkles in corners
+            ctx.font = '20px Arial';
+            ctx.fillText('✨', 10, 60);
+            ctx.fillText('✨', 770, 60);
+            ctx.fillText('✨', 10, 560);
+            ctx.fillText('✨', 770, 560);
+        }
+
+        // Projectiles
+        function updateProjectiles() {
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const p = projectiles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                for (let enemy of enemies) {
+                    const dist = Math.hypot(enemy.x - p.x, enemy.y - p.y);
+                    if (dist < enemy.type.size + 10) {
+                        enemy.takeDamage(p.damage, p.owner);
+                        projectiles.splice(i, 1);
+                        break;
+                    }
+                }
+
+                if (p.x < -50 || p.x > 850 || p.y < -50 || p.y > 650) {
+                    projectiles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawProjectiles() {
+            for (let p of projectiles) {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(Math.atan2(p.vy, p.vx));
+                
+                // Arrow shaft
+                ctx.fillStyle = p.isSavvy ? '#ff69b4' : (p.color || '#ff1493');
+                ctx.fillRect(-20, -3, 28, 6);
+                
+                // Arrowhead
+                ctx.beginPath();
+                ctx.moveTo(12, 0);
+                ctx.lineTo(4, -7);
+                ctx.lineTo(4, 7);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Heart tip for savvy arrows
+                if (p.isSavvy) {
+                    ctx.fillStyle = '#ff0000';
+                    ctx.beginPath();
+                    ctx.moveTo(12, 0);
+                    ctx.bezierCurveTo(9, -5, 6, -2, 12, 4);
+                    ctx.bezierCurveTo(18, -2, 15, -5, 12, 0);
+                    ctx.fill();
+                }
+                
+                // Fletching
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.moveTo(-17, 0);
+                ctx.lineTo(-24, -6);
+                ctx.lineTo(-20, 0);
+                ctx.lineTo(-24, 6);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Glow trail
+                ctx.globalAlpha = 0.3;
+                ctx.fillStyle = p.isSavvy ? '#ff69b4' : p.color;
+                ctx.fillRect(-35, -2, 15, 4);
+                ctx.globalAlpha = 1;
+                
+                ctx.restore();
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                p.vy += 0.15;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function drawParticles() {
+            for (let p of particles) {
+                ctx.globalAlpha = p.life / 60;
+                
+                if (p.heart) {
+                    // Draw heart particle
+                    ctx.fillStyle = p.color;
+                    ctx.font = (p.size * 1.5) + 'px Arial';
+                    ctx.fillText('💕', p.x - p.size/2, p.y + p.size/2);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size || 4, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        // Dialog system
+        function showDialog(dialogs) {
+            dialogQueue = [...dialogs];
+            dialogActive = true;
+            showNextDialog();
+        }
+
+        function showNextDialog() {
+            if (dialogQueue.length === 0) {
+                document.getElementById('dialogBox').style.display = 'none';
+                dialogActive = false;
+                return;
+            }
+            
+            const dialog = dialogQueue.shift();
+            document.getElementById('dialogBox').style.display = 'block';
+            
+            const names = {
+                'savvy': '👑 Savannah "Savvy"',
+                'austin': '😤 Austin',
+                'cocaine': '⚡ COCAINE AUSTIN ⚡'
+            };
+            
+            document.getElementById('dialogName').textContent = names[dialog.speaker] || dialog.speaker;
+            document.getElementById('dialogMessage').textContent = dialog.text;
+            drawPortrait(dialog.speaker);
+            
+            // Trigger effects based on dialog
+            if (dialog.effect) {
+                switch(dialog.effect) {
+                    case 'explosion_small':
+                        triggerExplosion(3, 'small');
+                        break;
+                    case 'explosion_medium':
+                        triggerExplosion(5, 'medium');
+                        break;
+                    case 'explosion_large':
+                        triggerExplosion(8, 'large');
+                        break;
+                    case 'explosion_boss':
+                        triggerFlash();
+                        setTimeout(() => triggerExplosion(12, 'large'), 100);
+                        setTimeout(() => triggerExplosion(8, 'medium'), 400);
+                        break;
+                    case 'shake':
+                        triggerScreenShake(15, 20);
+                        break;
+                    case 'flash':
+                        triggerFlash();
+                        break;
+                    case 'sparkle':
+                        createSparkles();
+                        break;
+                }
+            }
+        }
+
+        function createSparkles() {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    cutsceneExplosions.push({
+                        x: 100 + Math.random() * 600,
+                        y: 100 + Math.random() * 400,
+                        vx: (Math.random() - 0.5) * 2,
+                        vy: -1 - Math.random() * 2,
+                        size: 10 + Math.random() * 20,
+                        life: 40 + Math.random() * 30,
+                        maxLife: 70,
+                        color: ['#ff69b4', '#ffcc00', '#ffffff', '#ff1493'][Math.floor(Math.random() * 4)],
+                        type: 'sparkle'
+                    });
+                }, i * 50);
+            }
+        }
+
+        function continueDialog() {
+            showNextDialog();
+        }
+
+        // Wave system
+        let spawnQueue = [];
+        let spawnTimer = 0;
+
+        function startWave() {
+            if (waveActive || dialogActive) return;
+            
+            cancelSelection();
+            wave++;
+            
+            // Show dialog for this wave
+            let dialogs = waveDialogs[wave];
+            if (!dialogs && wave > 1) {
+                // Generate random dialog for waves without specific content
+                dialogs = [
+                    { speaker: 'savvy', text: randomWaveStartLines[Math.floor(Math.random() * randomWaveStartLines.length)] }
+                ];
+            }
+            
+            if (dialogs) {
+                showDialog(dialogs);
+                // Wait for dialog to finish, then start wave
+                const checkDialog = setInterval(() => {
+                    if (!dialogActive) {
+                        clearInterval(checkDialog);
+                        actuallyStartWave();
+                    }
+                }, 100);
+            } else {
+                actuallyStartWave();
+            }
+        }
+
+        function actuallyStartWave() {
+            waveActive = true;
+            updateUI();
+            
+            spawnQueue = [];
+            
+            const numAustins = 5 + wave * 2;
+            for (let i = 0; i < numAustins; i++) {
+                spawnQueue.push('austin');
+            }
+            
+            if (wave >= 2) {
+                const numFast = Math.floor(wave / 2) * 2;
+                for (let i = 0; i < numFast; i++) {
+                    spawnQueue.push('fastAustin');
+                }
+            }
+            
+            if (wave >= 3) {
+                const numBig = Math.floor(wave / 3);
+                for (let i = 0; i < numBig; i++) {
+                    spawnQueue.push('bigAustin');
+                }
+            }
+            
+            if (wave % 5 === 0) {
+                spawnQueue.push('cocaineAustin');
+            }
+            
+            // Shuffle spawn order
+            for (let i = spawnQueue.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [spawnQueue[i], spawnQueue[j]] = [spawnQueue[j], spawnQueue[i]];
+            }
+            
+            // Boss always comes last
+            const bossIndex = spawnQueue.indexOf('cocaineAustin');
+            if (bossIndex > -1) {
+                spawnQueue.splice(bossIndex, 1);
+                spawnQueue.push('cocaineAustin');
+            }
+            
+            document.getElementById('startBtn').disabled = true;
+        }
+
+        function spawnEnemy() {
+            if (spawnQueue.length === 0) return;
+            
+            spawnTimer++;
+            if (spawnTimer >= 70) {  // Slower spawn rate for breathing room
+                spawnTimer = 0;
+                const type = spawnQueue.shift();
+                enemies.push(new Enemy(type));
+            }
+        }
+
+        // Victory dialog after completing wave
+        function showVictoryDialog() {
+            const line = randomVictoryLines[Math.floor(Math.random() * randomVictoryLines.length)];
+            showDialog([{ speaker: 'savvy', text: line }]);
+        }
+
+        // Canvas interaction
+        function handleCanvasInteraction(x, y) {
+            if (dialogActive) return;
+            
+            // Check if clicking on existing defender
+            for (let def of defenders) {
+                const dist = Math.hypot(def.x - x, def.y - y);
+                if (dist < 40) {
+                    selectDefender(def);
+                    return;
+                }
+            }
+            
+            // Try to place tower
+            if (selectedTower) {
+                placeTower(x, y);
+                return;
+            }
+            
+            // Deselect if clicking empty space
+            if (selectedDefender) {
+                cancelSelection();
+            }
+        }
+
+        function selectDefender(def) {
+            selectedTower = null;
+            document.querySelectorAll('.shopBtn').forEach(btn => btn.classList.remove('selected'));
+            
+            if (selectedDefender) selectedDefender.selected = false;
+            
+            selectedDefender = def;
+            def.selected = true;
+            
+            document.getElementById('sellBtn').style.display = 'block';
+            document.getElementById('cancelBtn').style.display = 'block';
+            document.getElementById('sellPrice').textContent = def.getSellValue();
+        }
+
+        function sellSelected() {
+            if (!selectedDefender) return;
+            
+            gold += selectedDefender.getSellValue();
+            
+            const index = defenders.indexOf(selectedDefender);
+            if (index > -1) defenders.splice(index, 1);
+            
+            // Sell particles
+            for (let i = 0; i < 20; i++) {
+                particles.push({
+                    x: selectedDefender.x,
+                    y: selectedDefender.y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    life: 45,
+                    color: '#ffcc00',
+                    size: 5
+                });
+            }
+            
+            cancelSelection();
+            updateUI();
+        }
+
+        function cancelSelection() {
+            selectedTower = null;
+            if (selectedDefender) {
+                selectedDefender.selected = false;
+                selectedDefender = null;
+            }
+            
+            document.querySelectorAll('.shopBtn').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('sellBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        function placeTower(x, y) {
+            if (!selectedTower) return;
+            
+            const type = towerTypes[selectedTower];
+            if (gold < type.cost) return;
+            
+            // Check not too close to path
+            for (let i = 0; i < path.length - 1; i++) {
+                const p1 = path[i];
+                const p2 = path[i + 1];
+                const dist = distToSegment(x, y, p1.x, p1.y, p2.x, p2.y);
+                if (dist < 55) return;
+            }
+            
+            // Check not too close to other defenders
+            for (let def of defenders) {
+                if (Math.hypot(def.x - x, def.y - y) < 60) return;
+            }
+            
+            gold -= type.cost;
+            defenders.push(new Defender(x, y, selectedTower));
+            updateUI();
+        }
+        
+        // Distance from point to line segment
+        function distToSegment(px, py, x1, y1, x2, y2) {
+            const A = px - x1;
+            const B = py - y1;
+            const C = x2 - x1;
+            const D = y2 - y1;
+            const dot = A * C + B * D;
+            const lenSq = C * C + D * D;
+            let param = -1;
+            if (lenSq !== 0) param = dot / lenSq;
+            let xx, yy;
+            if (param < 0) { xx = x1; yy = y1; }
+            else if (param > 1) { xx = x2; yy = y2; }
+            else { xx = x1 + param * C; yy = y1 + param * D; }
+            return Math.hypot(px - xx, py - yy);
+        }
+
+        function selectTower(type) {
+            if (dialogActive) return;
+            
+            if (selectedDefender) {
+                selectedDefender.selected = false;
+                selectedDefender = null;
+            }
+            document.getElementById('sellBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+            
+            if (selectedTower === type) {
+                selectedTower = null;
+                document.querySelectorAll('.shopBtn').forEach(btn => btn.classList.remove('selected'));
+            } else {
+                selectedTower = type;
+                document.querySelectorAll('.shopBtn').forEach(btn => btn.classList.remove('selected'));
+                document.getElementById('btn_' + type).classList.add('selected');
+            }
+        }
+
+        function handleCanvasClick(event) {
+            event.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX, clientY;
+            if (event.touches) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            } else {
+                clientX = event.clientX;
+                clientY = event.clientY;
+            }
+            
+            const x = (clientX - rect.left) * scaleX;
+            const y = (clientY - rect.top) * scaleY;
+            
+            handleCanvasInteraction(x, y);
+        }
+
+        canvas.addEventListener('click', handleCanvasClick);
+        canvas.addEventListener('touchstart', handleCanvasClick);
+
+        function updateUI() {
+            document.getElementById('gold').textContent = gold;
+            document.getElementById('lives').textContent = lives;
+            document.getElementById('wave').textContent = wave;
+            document.getElementById('kills').textContent = kills;
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            showMessage('💔 Game Over! 💔', `The Austins broke through!\n\nYou survived ${wave} waves\nand defeated ${kills} enemies!\n\nSavvy will be back stronger! 💪`, 'Try Again');
+        }
+
+        function showMessage(title, text, buttonText) {
+            document.getElementById('msgTitle').textContent = title;
+            document.getElementById('msgText').textContent = text;
+            document.getElementById('messageBox').querySelector('button').textContent = buttonText;
+            document.getElementById('messageBox').style.display = 'block';
+        }
+
+        function closeMessage() {
+            document.getElementById('messageBox').style.display = 'none';
+            if (!gameRunning) resetGame();
+        }
+
+        function resetGame() {
+            gold = 150;
+            lives = 20;
+            wave = 0;
+            kills = 0;
+            defenders = [];
+            enemies = [];
+            projectiles = [];
+            particles = [];
+            spawnQueue = [];
+            waveActive = false;
+            gameRunning = true;
+            selectedTower = null;
+            selectedDefender = null;
+            dialogActive = false;
+            dialogQueue = [];
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('sellBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+            document.getElementById('dialogBox').style.display = 'none';
+            document.querySelectorAll('.shopBtn').forEach(btn => btn.classList.remove('selected'));
+            updateUI();
+            
+            // Show intro dialog
+            showDialog(waveDialogs[0]);
+        }
+
+        // Main game loop
+        function gameLoop() {
+            // Apply screen shake
+            ctx.save();
+            if (screenShake.duration > 0) {
+                const shakeX = (Math.random() - 0.5) * screenShake.intensity;
+                const shakeY = (Math.random() - 0.5) * screenShake.intensity;
+                ctx.translate(shakeX, shakeY);
+            }
+            
+            // Background
+            ctx.fillStyle = '#2d1b4e';
+            ctx.fillRect(-20, -20, canvas.width + 40, canvas.height + 40);
+            
+            drawDecorations();
+            drawPath();
+            
+            // Always update cutscene effects
+            updateCutsceneEffects();
+            
+            if (gameRunning && !dialogActive) {
+                if (waveActive) spawnEnemy();
+                
+                defenders.forEach(d => d.update());
+                enemies.forEach(e => e.update());
+                updateProjectiles();
+                updateParticles();
+                
+                enemies = enemies.filter(e => !e.dead);
+                
+                // Wave complete check
+                if (waveActive && enemies.length === 0 && spawnQueue.length === 0) {
+                    waveActive = false;
+                    document.getElementById('startBtn').disabled = false;
+                    gold += 35 + wave * 10;
+                    updateUI();
+                    showVictoryDialog();
+                }
+            }
+            
+            // Draw everything
+            enemies.forEach(e => e.draw());
+            defenders.forEach(d => d.draw());
+            drawProjectiles();
+            drawParticles();
+            
+            // Draw cutscene explosions and effects ON TOP
+            drawCutsceneEffects();
+            
+            // Instructions when placing
+            if (selectedTower && !dialogActive) {
+                ctx.globalAlpha = 0.9;
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#fff';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.strokeText('✨ Tap to place ' + towerTypes[selectedTower].name + ' ✨', canvas.width/2, 50);
+                ctx.fillText('✨ Tap to place ' + towerTypes[selectedTower].name + ' ✨', canvas.width/2, 50);
+                ctx.globalAlpha = 1;
+            }
+            
+            // Info when defender selected
+            if (selectedDefender && !dialogActive) {
+                ctx.globalAlpha = 0.9;
+                ctx.font = 'bold 18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#00ff88';
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.strokeText('💚 ' + selectedDefender.type.name + ' selected - Tap SELL or CANCEL 💚', canvas.width/2, 50);
+                ctx.fillText('💚 ' + selectedDefender.type.name + ' selected - Tap SELL or CANCEL 💚', canvas.width/2, 50);
+                ctx.globalAlpha = 1;
+            }
+            
+            ctx.restore(); // End screen shake transform
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Initialize game - Birthday message first!
+        function showBirthdayMessage() {
+            const overlay = document.createElement('div');
+            overlay.id = 'birthdayOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #ff69b4 0%, #ff1493 25%, #ff69b4 50%, #ff1493 75%, #ff69b4 100%);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                animation: birthdayPulse 2s ease-in-out infinite;
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes birthdayPulse {
+                    0%, 100% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                }
+                @keyframes heartBeat {
+                    0%, 100% { transform: scale(1); }
+                    25% { transform: scale(1.1); }
+                    50% { transform: scale(1); }
+                    75% { transform: scale(1.15); }
+                }
+                @keyframes floatUp {
+                    0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+                    100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+                }
+                @keyframes sparkle {
+                    0%, 100% { opacity: 0; transform: scale(0); }
+                    50% { opacity: 1; transform: scale(1); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Floating hearts background
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = ['💖', '💕', '💗', '💝', '✨', '🌟', '💫'][Math.floor(Math.random() * 7)];
+                heart.style.cssText = `
+                    position: absolute;
+                    font-size: ${20 + Math.random() * 40}px;
+                    left: ${Math.random() * 100}%;
+                    animation: floatUp ${5 + Math.random() * 5}s linear infinite;
+                    animation-delay: ${Math.random() * 5}s;
+                `;
+                overlay.appendChild(heart);
+            }
+            
+            const content = document.createElement('div');
+            content.style.cssText = `
+                text-align: center;
+                z-index: 1;
+                padding: 30px;
+                background: rgba(255,255,255,0.95);
+                border-radius: 30px;
+                box-shadow: 0 0 50px rgba(255,20,147,0.8), 0 0 100px rgba(255,105,180,0.5);
+                max-width: 90%;
+                animation: heartBeat 1.5s ease-in-out infinite;
+            `;
+            
+            content.innerHTML = `
+                <div style="font-size: clamp(40px, 12vw, 80px); margin-bottom: 10px;">🎂🎉💖🎉🎂</div>
+                <h1 style="font-size: clamp(28px, 8vw, 60px); color: #ff1493; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); margin: 15px 0; font-family: 'Georgia', serif;">
+                    Happy Birthday!
+                </h1>
+                <div style="font-size: clamp(50px, 15vw, 100px); animation: heartBeat 1s ease-in-out infinite;">
+                    💕
+                </div>
+                <h2 style="font-size: clamp(24px, 6vw, 48px); color: #ff69b4; margin: 15px 0; font-family: 'Georgia', serif;">
+                    I Love You, Savannah!
+                </h2>
+                <p style="font-size: clamp(16px, 4vw, 24px); color: #333; margin: 20px 0; line-height: 1.6;">
+                    I made this game just for you! 💘<br>
+                    You're my queen, my everything! 👑<br>
+                    Have the most amazing birthday! 🎂✨
+                </p>
+                <div style="font-size: clamp(30px, 8vw, 50px); margin: 15px 0;">
+                    💖💝💖💝💖
+                </div>
+                <button id="birthdayBtn" style="
+                    background: linear-gradient(145deg, #ff1493, #ff69b4);
+                    border: none;
+                    padding: 20px 50px;
+                    font-size: clamp(18px, 5vw, 28px);
+                    color: white;
+                    border-radius: 50px;
+                    cursor: pointer;
+                    font-weight: bold;
+                    box-shadow: 0 8px 25px rgba(255,20,147,0.5);
+                    transition: all 0.3s;
+                    margin-top: 10px;
+                ">
+                    Play My Game! 💘
+                </button>
+            `;
+            
+            overlay.appendChild(content);
+            document.body.appendChild(overlay);
+            
+            document.getElementById('birthdayBtn').onclick = () => {
+                overlay.style.transition = 'opacity 1s';
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.remove();
+                    showWelcome();
+                }, 1000);
+            };
+        }
+        
+        function showWelcome() {
+            showMessage('💘 Welcome to Savi Defense! 💘', 
+                `Defend against waves of Austins!
+
+👸 Savvy - THE overpowered archer queen!
+🏰 Love Tower - Shoots 3 love arrows
+💪 Fighter - Strong melee warrior
+
+Tap defenders to SELECT & SELL them!
+
+Story unfolds between waves! 💕`, 
+                'Start Playing!');
+        }
+        
+        showBirthdayMessage();
+        gameRunning = true;
+        gameLoop();
+    </script>
+</body>
+</html>
