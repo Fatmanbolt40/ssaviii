@@ -267,6 +267,10 @@
         let cutsceneExplosions = [];
         let screenShake = { intensity: 0, duration: 0 };
         let cutsceneFlash = { alpha: 0 };
+        
+        // Flying bodies system (when Austin dies he flies away!)
+        let flyingBodies = [];
+        let bodyPile = [];  // Bodies that landed
 
         // Trigger dramatic explosion effect
         function triggerExplosion(count = 5, intensity = 'medium') {
@@ -1316,6 +1320,20 @@
                     if (owner) owner.kills++;
                     updateUI();
                     
+                    // Flying body animation - Austin flies away!
+                    flyingBodies.push({
+                        x: this.x,
+                        y: this.y,
+                        vx: (Math.random() - 0.5) * 8 + 3,  // Fly towards right
+                        vy: -Math.random() * 12 - 8,       // Launch upward
+                        rotation: 0,
+                        rotationSpeed: (Math.random() - 0.5) * 0.4,
+                        typeName: this.typeName,
+                        scale: 1,
+                        alpha: 1,
+                        landed: false
+                    });
+                    
                     // Death explosion particles
                     for (let i = 0; i < 25; i++) {
                         particles.push({
@@ -1384,6 +1402,181 @@
             ctx.fillText('✨', 770, 60);
             ctx.fillText('✨', 10, 560);
             ctx.fillText('✨', 770, 560);
+            
+            // BAD DECISIONS sign at end of path!
+            const signX = 760;
+            const signY = 280;
+            
+            // Sign post
+            ctx.fillStyle = '#5a3a2a';
+            ctx.fillRect(signX + 40, signY + 60, 12, 120);
+            
+            // Sign board
+            ctx.fillStyle = '#8b4513';
+            ctx.fillRect(signX - 30, signY, 160, 70);
+            ctx.strokeStyle = '#5a3a2a';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(signX - 30, signY, 160, 70);
+            
+            // Sign text
+            ctx.fillStyle = '#ff0000';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('⚠️ BAD', signX + 50, signY + 25);
+            ctx.fillText('DECISIONS', signX + 50, signY + 45);
+            ctx.fillText('↓↓↓', signX + 50, signY + 62);
+            ctx.textAlign = 'left';
+            
+            // Neon glow effect
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 15;
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(signX - 26, signY + 4, 152, 62);
+            ctx.shadowBlur = 0;
+        }
+
+        // Flying bodies - Austin flies when killed!
+        const BODY_PILE_X = 720;  // Where bodies land
+        const BODY_PILE_Y = 520;  // Bottom right corner
+        
+        function updateFlyingBodies() {
+            for (let i = flyingBodies.length - 1; i >= 0; i--) {
+                const body = flyingBodies[i];
+                
+                // Physics
+                body.vy += 0.5;  // Gravity
+                body.x += body.vx;
+                body.y += body.vy;
+                body.rotation += body.rotationSpeed;
+                
+                // When body lands (goes below body pile area)
+                if (body.y > BODY_PILE_Y - 20) {
+                    // Add to body pile
+                    bodyPile.push({
+                        x: BODY_PILE_X + (Math.random() - 0.5) * 60,
+                        y: BODY_PILE_Y + (Math.random() - 0.5) * 20,
+                        rotation: body.rotation,
+                        typeName: body.typeName,
+                        scale: 0.7
+                    });
+                    flyingBodies.splice(i, 1);
+                    
+                    // Limit body pile size
+                    if (bodyPile.length > 30) {
+                        bodyPile.shift();
+                    }
+                }
+                
+                // Remove if off screen
+                if (body.x > 900 || body.x < -50 || body.y > 650) {
+                    // Still add to body pile counter
+                    bodyPile.push({
+                        x: BODY_PILE_X + (Math.random() - 0.5) * 60,
+                        y: BODY_PILE_Y + (Math.random() - 0.5) * 20,
+                        rotation: Math.random() * Math.PI * 2,
+                        typeName: body.typeName,
+                        scale: 0.7
+                    });
+                    flyingBodies.splice(i, 1);
+                    
+                    if (bodyPile.length > 30) {
+                        bodyPile.shift();
+                    }
+                }
+            }
+        }
+        
+        function drawFlyingBodies() {
+            // Draw flying bodies (mid-air)
+            for (const body of flyingBodies) {
+                ctx.save();
+                ctx.translate(body.x, body.y);
+                ctx.rotate(body.rotation);
+                ctx.globalAlpha = body.alpha;
+                
+                // Draw spinning Austin
+                const type = enemyTypes[body.typeName];
+                const size = type.size * 0.8;
+                ctx.fillStyle = type.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Face
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(-size*0.3, -size*0.2, size*0.15, 0, Math.PI * 2);
+                ctx.arc(size*0.3, -size*0.2, size*0.15, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // X eyes (dead)
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(-size*0.4, -size*0.3);
+                ctx.lineTo(-size*0.2, -size*0.1);
+                ctx.moveTo(-size*0.2, -size*0.3);
+                ctx.lineTo(-size*0.4, -size*0.1);
+                ctx.moveTo(size*0.2, -size*0.3);
+                ctx.lineTo(size*0.4, -size*0.1);
+                ctx.moveTo(size*0.4, -size*0.3);
+                ctx.lineTo(size*0.2, -size*0.1);
+                ctx.stroke();
+                
+                // Trail effect
+                ctx.globalAlpha = 0.3;
+                ctx.fillStyle = type.color;
+                ctx.beginPath();
+                ctx.arc(-body.vx * 2, -body.vy * 2, size * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        function drawBodyPile() {
+            if (bodyPile.length === 0) return;
+            
+            // Draw body pile area label
+            ctx.fillStyle = '#ff69b4';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('💀 BODY COUNT', BODY_PILE_X, BODY_PILE_Y - 50);
+            ctx.font = 'bold 24px Arial';
+            ctx.fillStyle = '#ff0000';
+            ctx.fillText(bodyPile.length, BODY_PILE_X, BODY_PILE_Y - 28);
+            ctx.textAlign = 'left';
+            
+            // Draw piled up bodies (small Austins)
+            for (const body of bodyPile) {
+                ctx.save();
+                ctx.translate(body.x, body.y);
+                ctx.rotate(body.rotation);
+                ctx.scale(body.scale, body.scale);
+                
+                const type = enemyTypes[body.typeName];
+                const size = type.size * 0.5;
+                
+                // Dead Austin
+                ctx.globalAlpha = 0.8;
+                ctx.fillStyle = type.color;
+                ctx.beginPath();
+                ctx.arc(0, 0, size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // X eyes
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(-3, -3);
+                ctx.lineTo(3, 3);
+                ctx.moveTo(3, -3);
+                ctx.lineTo(-3, 3);
+                ctx.stroke();
+                
+                ctx.restore();
+            }
         }
 
         // Projectiles - with aim assist!
@@ -1875,6 +2068,8 @@
             enemies = [];
             projectiles = [];
             particles = [];
+            flyingBodies = [];  // Reset flying bodies
+            bodyPile = [];      // Reset body pile
             spawnQueue = [];
             waveActive = false;
             gameRunning = true;
@@ -1920,6 +2115,7 @@
                 enemies.forEach(e => e.update());
                 updateProjectiles();
                 updateParticles();
+                updateFlyingBodies();  // Update flying Austin corpses
                 
                 enemies = enemies.filter(e => !e.dead);
                 
@@ -1938,6 +2134,8 @@
             defenders.forEach(d => d.draw());
             drawProjectiles();
             drawParticles();
+            drawFlyingBodies();  // Draw flying Austin corpses
+            drawBodyPile();      // Draw body count pile
             
             // Draw cutscene explosions and effects ON TOP
             drawCutsceneEffects();
