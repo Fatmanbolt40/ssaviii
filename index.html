@@ -529,36 +529,36 @@
             }
         };
 
-        // Enemy types - SLOWED DOWN significantly!
+        // Enemy types - balanced for challenge!
         const enemyTypes = {
             austin: {
                 name: 'Austin',
-                health: 50,
-                speed: 0.6,      // Slowed from 1.5 to 0.6
+                health: 70,
+                speed: 1.0,
                 reward: 15,
                 color: '#4169e1',
                 size: 20
             },
             fastAustin: {
                 name: 'Fast Austin',
-                health: 30,
-                speed: 1.2,      // Slowed from 3 to 1.2
+                health: 45,
+                speed: 1.8,
                 reward: 20,
                 color: '#00bfff',
                 size: 18
             },
             bigAustin: {
                 name: 'Big Austin',
-                health: 150,
-                speed: 0.3,      // Slowed from 0.8 to 0.3
+                health: 220,
+                speed: 0.5,
                 reward: 40,
                 color: '#191970',
                 size: 30
             },
             cocaineAustin: {
                 name: 'COCAINE AUSTIN',
-                health: 400,
-                speed: 1.0,      // Slowed from 2.5 to 1.0
+                health: 600,
+                speed: 1.4,
                 reward: 150,
                 color: '#ffffff',
                 size: 38,
@@ -1604,26 +1604,26 @@
             
             spawnQueue = [];
             
-            const numAustins = 5 + wave * 2;
+            const numAustins = 8 + wave * 3;  // More austins!
             for (let i = 0; i < numAustins; i++) {
                 spawnQueue.push('austin');
             }
             
             if (wave >= 2) {
-                const numFast = Math.floor(wave / 2) * 2;
+                const numFast = Math.floor(wave / 2) * 3;  // More fast austins
                 for (let i = 0; i < numFast; i++) {
                     spawnQueue.push('fastAustin');
                 }
             }
             
             if (wave >= 3) {
-                const numBig = Math.floor(wave / 3);
+                const numBig = Math.floor(wave / 2);  // More big austins
                 for (let i = 0; i < numBig; i++) {
                     spawnQueue.push('bigAustin');
                 }
             }
             
-            if (wave % 5 === 0) {
+            if (wave % 4 === 0) {  // Bosses every 4 waves instead of 5
                 spawnQueue.push('cocaineAustin');
             }
             
@@ -1647,7 +1647,7 @@
             if (spawnQueue.length === 0) return;
             
             spawnTimer++;
-            if (spawnTimer >= 70) {  // Slower spawn rate for breathing room
+            if (spawnTimer >= 50) {  // Faster spawn rate for more action!
                 spawnTimer = 0;
                 const type = spawnQueue.shift();
                 enemies.push(new Enemy(type));
