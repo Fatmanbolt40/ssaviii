@@ -1647,7 +1647,8 @@
             if (spawnQueue.length === 0) return;
             
             spawnTimer++;
-            if (spawnTimer >= 50) {  // Faster spawn rate for more action!
+            const spawnDelay = 10 + Math.floor(Math.random() * 15);  // Random 10-25 frames between spawns
+            if (spawnTimer >= spawnDelay) {
                 spawnTimer = 0;
                 const type = spawnQueue.shift();
                 enemies.push(new Enemy(type));
