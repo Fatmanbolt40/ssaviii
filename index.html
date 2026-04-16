@@ -1557,37 +1557,30 @@
                 
                 // When body lands (goes below body pile area)
                 if (body.y > BODY_PILE_Y - 20) {
-                    // Add to body pile
+                    // Add to body pile - NO LIMIT! LET THEM PILE UP FOREVER!
                     bodyPile.push({
-                        x: BODY_PILE_X + (Math.random() - 0.5) * 100,
-                        y: BODY_PILE_Y + (Math.random() - 0.5) * 40,
+                        x: BODY_PILE_X + (Math.random() - 0.5) * 150,
+                        y: BODY_PILE_Y + (Math.random() - 0.5) * 80 - (bodyPile.length * 0.3),  // Bodies pile UP
                         rotation: body.rotation,
                         typeName: body.typeName,
                         scale: 0.7
                     });
                     flyingBodies.splice(i, 1);
-                    
-                    // Limit body pile size - MUCH BIGGER NOW
-                    if (bodyPile.length > 100) {
-                        bodyPile.shift();
-                    }
+                    // NO MAX! Bodies pile forever!
                 }
                 
                 // Remove if off screen
                 if (body.x > 900 || body.x < -50 || body.y > 650) {
                     // Still add to body pile counter
                     bodyPile.push({
-                        x: BODY_PILE_X + (Math.random() - 0.5) * 100,
-                        y: BODY_PILE_Y + (Math.random() - 0.5) * 40,
+                        x: BODY_PILE_X + (Math.random() - 0.5) * 150,
+                        y: BODY_PILE_Y + (Math.random() - 0.5) * 80 - (bodyPile.length * 0.3),
                         rotation: Math.random() * Math.PI * 2,
                         typeName: body.typeName,
                         scale: 0.7
                     });
                     flyingBodies.splice(i, 1);
-                    
-                    if (bodyPile.length > 100) {
-                        bodyPile.shift();
-                    }
+                    // NO MAX!
                 }
             }
         }
